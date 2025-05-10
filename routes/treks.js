@@ -115,5 +115,5 @@ router.delete('/:id', auth, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
+console.log("Loaded routes/payments.js");
 module.exports = router;

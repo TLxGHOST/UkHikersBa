@@ -8,17 +8,26 @@ const path = require('path');
 dotenv.config();
 
 const app = express();
-// 
+
 // Middleware
 app.use(cors({
   origin: ['http://localhost:3000', 'https://uk-hikers-fr.vercel.app'], 
   credentials: true
 }));
-app.use(express.json());
+
+// Important: For Stripe webhook, we need raw body data
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/payments/webhook') {
+    next(); // Skip body parsing for webhook route
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
 // Routes
 const trekRoutes = require('./routes/treks');
 const authRoutes = require('./routes/auth');
+const paymentRoutes = require('./routes/payments');
 
 // Root route - basic health check
 app.get('/', (req, res) => {
@@ -28,6 +37,7 @@ app.get('/', (req, res) => {
 // Mount Routes
 app.use('/api/treks', trekRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
