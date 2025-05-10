@@ -8,17 +8,17 @@ const path = require('path');
 dotenv.config();
 
 const app = express();
-
+// 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://uk-hikers-fr.vercel.app'], // Add your frontend domains here
+  origin: ['http://localhost:3000', 'https://uk-hikers-fr.vercel.app'], 
   credentials: true
 }));
 app.use(express.json());
 
 // Routes
 const trekRoutes = require('./routes/treks');
-const authRoutes = require('./routes/auth'); // <-- NEW
+const authRoutes = require('./routes/auth');
 
 // Root route - basic health check
 app.get('/', (req, res) => {
@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 
 // Mount Routes
 app.use('/api/treks', trekRoutes);
-app.use('/api/auth', authRoutes); // <-- NEW
+app.use('/api/auth', authRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
@@ -48,12 +48,18 @@ app.use('*', (req, res) => {
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('✅ MongoDB connected');
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err.message);
+    // Exit process with failure
+    process.exit(1);
+  }
+};
+
+connectDB();
 
 // Start server
 const PORT = process.env.PORT || 5000;
